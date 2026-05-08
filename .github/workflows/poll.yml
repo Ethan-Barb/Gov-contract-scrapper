@@ -23,19 +23,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-          cache-dependency-path: gov-contract-bot/requirements.txt
+
+      - name: Debug - show file structure
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Contents of current directory ==="
+          ls -la
+          echo "=== Looking for requirements.txt ==="
+          find . -name "requirements.txt" -type f
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Restore state DB
-        uses: actions/cache@v4
-        with:
-          path: gov-contract-bot/data/state.db
-          key: state-db-${{ github.run_id }}
-          restore-keys: |
-            state-db-
 
       - name: Run bot
         env:
