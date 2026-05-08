@@ -1,0 +1,44 @@
+name: Investing Intel Bot
+
+on:
+  schedule:
+    - cron: "0 13 * * 1-5"   # 8 AM Central
+    - cron: "0 17 * * 1-5"   # 12 PM Central
+    - cron: "0 22 * * 1-5"   # 5 PM Central
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bots
+        env:
+          SAM_API_KEY:        ${{ secrets.SAM_API_KEY }}
+          GROQ_API_KEY:       ${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          SEC_USER_AGENT:     ${{ secrets.SEC_USER_AGENT }}
+        run: python -m src.main
+
+      - name: Commit DB updates
+        run: |
+          git config user.name "intel-bot"
+          git config user.email "bot@github.com"
+          git add data/intel.db
+          git diff --staged --quiet || git commit -m "Update intel.db [skip ci]"
+          git push || echo "Nothing to push"
