@@ -30,8 +30,8 @@ jobs:
           pwd
           echo "=== Contents of current directory ==="
           ls -la
-          echo "=== Looking for requirements.txt ==="
-          find . -name "requirements.txt" -type f
+          echo "=== Looking for requirements.txt anywhere ==="
+          find / -name "requirements.txt" -type f 2>/dev/null | head -20
 
       - name: Install dependencies
         run: pip install -r requirements.txt
